@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
 
 const stages = [
   "Personal",
@@ -62,11 +61,14 @@ function getMonthGrid(baseMonth: Date): Date[] {
 }
 
 export default function ProfileSubmissionPage() {
-  const searchParams = useSearchParams();
-  const [showFeeModal, setShowFeeModal] = useState(
-    searchParams.get("popup") === "fee" || !searchParams.get("popup"),
-  );
+  const [showFeeModal, setShowFeeModal] = useState(true);
   const [feeAccepted, setFeeAccepted] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const popup = params.get("popup");
+    setShowFeeModal(popup === "fee" || !popup);
+  }, []);
 
   const [form, setForm] = useState({
     firstName: "",

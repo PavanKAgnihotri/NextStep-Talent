@@ -17,12 +17,7 @@ export default function Header() {
   return (
     <header className="absolute inset-x-0 top-0 z-50">
       <nav className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center px-4 py-5 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:px-8 lg:py-7">
-        <Link
-          href="/"
-          className="inline-flex min-h-11 items-center justify-self-start font-display text-2xl tracking-tight text-(--accent-strong) lg:opacity-0 lg:pointer-events-none"
-        >
-          NextTalent
-        </Link>
+        <div className="hidden min-h-11 lg:block" aria-hidden="true" />
 
         <div className="hidden items-center gap-10 justify-self-center text-sm font-semibold uppercase tracking-[0.28em] text-white/88 lg:flex">
           {navItems.map((item) => (

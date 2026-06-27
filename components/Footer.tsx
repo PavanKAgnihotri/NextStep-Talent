@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="mt-auto w-full border-t border-[rgba(200,169,107,0.14)] bg-[#050505] py-12 text-white">
+    <footer className="mt-auto w-full border-t border-[rgba(200,169,107,0.14)] bg-[#050505] py-12 pt-8 text-white">
       <div className="mx-auto max-w-310 px-6 md:px-8">
         <div className="flex justify-center">
           <Link className="inline-flex" href="/" data-discover="true">
@@ -17,7 +17,7 @@ export default function Footer() {
           </Link>
         </div>
 
-        <div className="mt-10 flex flex-col items-center gap-8 text-center">
+        <div className="mt-2 flex flex-col items-center gap-2 text-center">
           <div>
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-[#bdbdc3]">
               <Link
@@ -39,12 +39,14 @@ export default function Footer() {
           </div>
         </div>
 
-        <p className="mt-12 text-center text-xs uppercase tracking-[0.22em] text-[#85858e]">
-          © 2026 NextStep Talent. All rights reserved.
+        <p className="mt-2 text-center text-xs uppercase tracking-[0.22em] text-[#85858e]">
+          © 2026 NextStep Talent.
+          <br />
+          All rights reserved.
           <br />
           Developed by{" "}
           <a
-            href="http://ravviolabs.com/"
+            href="https://pavankagnihotri.github.io/"
             target="_blank"
             rel="noreferrer"
             className="inline-flex min-h-11 items-center font-semibold underline-offset-2 hover:underline"

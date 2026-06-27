@@ -68,9 +68,9 @@ export default function Home() {
             <div className="mx-auto mt-8 h-px w-18 bg-[linear-gradient(90deg,transparent,#c8a96b,transparent)]" />
 
             <p className="mx-auto mt-8 max-w-190 text-base leading-8 text-[#d2d2d6] sm:text-lg">
-              Structured pathways for individuals seeking international career
-              opportunities through profile evaluation, alignment, and
-              readiness.
+              Structured Pathways for Individuals Seeking International Career
+              Opportunities through Profile Evaluation, Alignment, and
+              Readiness.
             </p>
 
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -117,7 +117,7 @@ export default function Home() {
           <div className="max-w-3xl">
             <div className="section-label">What We Do</div>
             <h2 className="font-display mt-6 text-4xl leading-tight text-white sm:text-5xl">
-              A structured process, at every stage.
+              A Structured Process, at Every Stage.
             </h2>
             <p className="mt-6 text-lg leading-8 text-white/62">
               We offer a structured and selective process designed to support
@@ -136,6 +136,7 @@ export default function Home() {
                     src={step.image}
                     alt={step.title}
                     fill
+                    sizes="(min-width: 1280px) 20vw, (min-width: 768px) 50vw, 100vw"
                     className="object-cover transition duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-linear-to-t from-[#070707] via-[#070707]/20 to-transparent" />
@@ -299,7 +300,7 @@ export default function Home() {
                       fill="url(#nst-abstract-land)"
                       stroke="rgba(205,170,99,0.5)"
                       strokeWidth="1.15"
-                      style={{ cursor: "pointer", transition: "240ms" }}
+                      style={{ cursor: "default", transition: "240ms" }}
                     />
                   </g>
 
@@ -336,6 +337,30 @@ export default function Home() {
                       strokeLinecap="round"
                       style={{ transition: "240ms" }}
                     />
+                    <path
+                      id="path-australia-europe"
+                      d="M848 470 C786 425 711 349 628 258 C586 211 549 183 505 160"
+                      stroke="rgba(158,129,69,0.28)"
+                      strokeWidth="1.05"
+                      strokeLinecap="round"
+                      style={{ transition: "240ms" }}
+                    />
+                    <path
+                      id="path-southamerica-europe"
+                      d="M360 383 C386 349 418 307 449 258 C470 224 485 195 505 160"
+                      stroke="rgba(158,129,69,0.28)"
+                      strokeWidth="1.05"
+                      strokeLinecap="round"
+                      style={{ transition: "240ms" }}
+                    />
+                    <path
+                      id="path-africa-europe"
+                      d="M518 404 C530 350 529 295 520 238 C516 205 511 183 505 160"
+                      stroke="rgba(158,129,69,0.28)"
+                      strokeWidth="1.05"
+                      strokeLinecap="round"
+                      style={{ transition: "240ms" }}
+                    />
                   </g>
 
                   {/* ANIMATED TRAVEL DOTS */}
@@ -345,8 +370,23 @@ export default function Home() {
                     </animateMotion>
                   </circle>
                   <circle r="4" fill="#d4af37" opacity="0.7">
-                    <animateMotion dur="3s" repeatCount="indefinite">
+                    <animateMotion dur="4s" repeatCount="indefinite">
                       <mpath href="#path-uk-europe" />
+                    </animateMotion>
+                  </circle>
+                  <circle r="4.5" fill="#d4af37" opacity="0.75">
+                    <animateMotion dur="4s" repeatCount="indefinite">
+                      <mpath href="#path-australia-europe" />
+                    </animateMotion>
+                  </circle>
+                  <circle r="4.2" fill="#d4af37" opacity="0.74">
+                    <animateMotion dur="4s" repeatCount="indefinite">
+                      <mpath href="#path-southamerica-europe" />
+                    </animateMotion>
+                  </circle>
+                  <circle r="4.2" fill="#d4af37" opacity="0.72">
+                    <animateMotion dur="4s" repeatCount="indefinite">
+                      <mpath href="#path-africa-europe" />
                     </animateMotion>
                   </circle>
 
@@ -510,11 +550,11 @@ export default function Home() {
         <div className="panel mx-auto grid max-w-7xl gap-8 rounded-4xl px-6 py-8 sm:px-10 sm:py-12 lg:grid-cols-[0.3fr_0.7fr] lg:items-center">
           <div
             className="group relative mx-auto w-full max-w-90 cursor-pointer bg-contain bg-center bg-no-repeat transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_16px_36px_rgba(201,169,110,0.42)]"
-            style={{ backgroundImage: "url('/imp_notice2.png')" }}
+            style={{ backgroundImage: "url('/important_notice.png')" }}
           >
             <div className="aspect-4/5 w-full" />
-            <div className="absolute inset-x-[16%] top-[35%] text-center">
-              <p className="text-[0.88rem] font-semibold leading-6 text-[#231c12] sm:text-[1rem] sm:leading-7">
+            <div className="absolute inset-x-[16%] inset-y-[28%] flex items-center justify-center text-center">
+              <p className="font-display text-[1rem] font-semibold leading-7 text-[#f5f4f0] sm:text-[1.14rem] sm:leading-8">
                 Due to our structured and selective process, only a limited
                 number of candidates are onboarded each cycle.
               </p>
@@ -526,7 +566,7 @@ export default function Home() {
               Take The Next Step
             </div>
             <h2 className="font-display mt-6 text-4xl leading-tight text-white sm:text-5xl lg:text-center">
-              Looking to explore international career pathways?
+              Looking to Explore International Career Pathways?
             </h2>
             <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-white/62 lg:mx-0 lg:text-center">
               Check if you meet the criteria to begin your international career

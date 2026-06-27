@@ -61,14 +61,12 @@ function getMonthGrid(baseMonth: Date): Date[] {
 }
 
 export default function ProfileSubmissionPage() {
-  const [showFeeModal, setShowFeeModal] = useState(true);
+  const [showFeeModal, setShowFeeModal] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const popup = new URLSearchParams(window.location.search).get("popup");
+    return popup === "fee" || !popup;
+  });
   const [feeAccepted, setFeeAccepted] = useState(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const popup = params.get("popup");
-    setShowFeeModal(popup === "fee" || !popup);
-  }, []);
 
   const [form, setForm] = useState({
     firstName: "",
@@ -87,7 +85,7 @@ export default function ProfileSubmissionPage() {
   return (
     <div
       className="network-grid relative z-20 px-4 pb-20 pt-28 sm:px-6 lg:px-8 lg:pt-32"
-      style={{ overflow: "visible" }}
+      style={{ overflowX: "hidden", overflowY: "visible" }}
     >
       <div className="relative z-50 mx-auto max-w-300">
         <div className="flex flex-col gap-6">

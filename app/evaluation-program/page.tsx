@@ -34,7 +34,7 @@ const countryCriteria = [
   {
     country: "Germany",
     flag: "de",
-    location: "Europe or Outside Europe",
+    location: "N/A, but Open to Relocate to Germany",
     language: "B2 Certified or above in German",
   },
   {
@@ -210,7 +210,7 @@ export default function EvaluationProgramPage() {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <h3 className="font-display text-3xl text-white sm:text-4xl">
-                Country-specific Eligibility Criteria
+                Country-Specific Eligibility Criteria
               </h3>
               <p className="mt-3 text-sm uppercase tracking-[0.24em] text-(--accent)">
                 Minimum Eligibility

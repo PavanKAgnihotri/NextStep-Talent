@@ -10,14 +10,20 @@ type EuropeCountry = "Germany" | "Switzerland" | "Austria" | "Poland" | null;
 type YesNo = "Yes" | "No" | "";
 type Qualification =
   | "Diploma with one year practical training"
-  | "Bachelor's"
+  | "Bachelor’s"
   | "Master's"
   | "";
+
+type EuropeLanguageRequirement =
+  | YesNo
+  | "German B2 certified or above"
+  | "French B2 certified or above"
+  | "Italian B2 certified or above";
 
 interface EuropeEligibility {
   itBackground: YesNo;
   qualification: Qualification;
-  germanB2: YesNo;
+  languageRequirement: EuropeLanguageRequirement;
   currentLocation: "Europe" | "Outside Europe" | "";
   willingToRelocate: YesNo;
   comfortableWithFees: YesNo;
@@ -40,10 +46,15 @@ interface FormState {
   globalEligibility: GlobalEligibility;
 }
 
+interface EligibilityResult {
+  eligible: boolean;
+  reasons: string[];
+}
+
 const emptyEuropeEligibility: EuropeEligibility = {
   itBackground: "",
   qualification: "",
-  germanB2: "",
+  languageRequirement: "",
   currentLocation: "",
   willingToRelocate: "",
   comfortableWithFees: "",
@@ -82,11 +93,107 @@ function isEuropeFormComplete(e: EuropeEligibility): boolean {
   return (
     e.itBackground !== "" &&
     e.qualification !== "" &&
-    e.germanB2 !== "" &&
+    e.languageRequirement !== "" &&
     e.currentLocation !== "" &&
     e.willingToRelocate !== "" &&
     e.comfortableWithFees !== ""
   );
+}
+
+function getEuropeLanguageQuestion(country: EuropeCountry): {
+  label: string;
+  options: string[];
+} {
+  if (country === "Switzerland") {
+    return {
+      label: "Do you have certified B2 or above in German, French, or Italian?",
+      options: [
+        "German B2 certified or above",
+        "French B2 certified or above",
+        "Italian B2 certified or above",
+        "No",
+      ],
+    };
+  }
+
+  if (country === "Poland") {
+    return {
+      label: "Do you have professional English proficiency?",
+      options: ["Yes", "No"],
+    };
+  }
+
+  return {
+    label: "Do you have certified German B2 or above?",
+    options: ["Yes", "No"],
+  };
+}
+
+function getEuropeEligibilityResult(
+  e: EuropeEligibility,
+  country: EuropeCountry,
+): EligibilityResult {
+  const reasons: string[] = [];
+
+  if (e.itBackground === "No") {
+    reasons.push(
+      "You need to have an IT background (Software, Data, Cloud, AI, Cybersecurity, etc.).",
+    );
+  }
+
+  if (e.languageRequirement === "No") {
+    if (country === "Poland") {
+      reasons.push("You need to have professional English proficiency.");
+    } else if (country === "Switzerland") {
+      reasons.push(
+        "You need to have certified B2 or above in German, French, or Italian.",
+      );
+    } else {
+      reasons.push("You need to have certified German B2 or above.");
+    }
+  }
+
+  if (e.willingToRelocate === "No") {
+    reasons.push("You need to be willing to relocate to the selected country.");
+  }
+
+  if (e.comfortableWithFees === "No") {
+    reasons.push(
+      "You need to be comfortable with program/service fees for processing.",
+    );
+  }
+
+  return { eligible: reasons.length === 0, reasons };
+}
+
+function getGlobalEligibilityResult(g: GlobalEligibility): EligibilityResult {
+  const reasons: string[] = [];
+
+  if (g.itBackground === "No") {
+    reasons.push(
+      "You need to have an IT background (Software, Data, Cloud, AI, Cybersecurity, etc.).",
+    );
+  }
+
+  if (g.englishProficiency === "No") {
+    reasons.push(
+      "You need to have certified/professional English proficiency.",
+    );
+  }
+
+  if (g.willingToRelocate === "No") {
+    reasons.push(
+      "You need to be willing to relocate to another country, if required.",
+    );
+  }
+
+  if (g.comfortableWithFees === "No") {
+    reasons.push(
+      "You need to be comfortable with program/service fees for processing.",
+    );
+  }
+
+  return { eligible: reasons.length === 0, reasons };
 }
 
 function isGlobalFormComplete(g: GlobalEligibility): boolean {
@@ -106,17 +213,54 @@ const europeCountries: Exclude<EuropeCountry, null>[] = [
   "Poland",
 ];
 
-const europeCountryFlags: Record<Exclude<EuropeCountry, null>, string> = {
-  Germany: "🇩🇪",
-  Switzerland: "🇨🇭",
-  Austria: "🇦🇹",
-  Poland: "🇵🇱",
+const europeCountryBackgrounds: Record<Exclude<EuropeCountry, null>, string> = {
+  Germany:
+    "linear-gradient(180deg, #000000 0 33.33%, #dd0000 33.33% 66.66%, #ffce00 66.66% 100%)",
+  Switzerland:
+    "linear-gradient(90deg, transparent 0 38%, #ffffff 38% 62%, transparent 62% 100%), linear-gradient(180deg, transparent 0 38%, #ffffff 38% 62%, transparent 62% 100%), #d52b1e",
+  Austria:
+    "linear-gradient(180deg, #ed2939 0 33.33%, #ffffff 33.33% 66.66%, #ed2939 66.66% 100%)",
+  Poland: "linear-gradient(180deg, #ffffff 0 50%, #dc143c 50% 100%)",
+};
+
+const europeCountryTextColors: Record<Exclude<EuropeCountry, null>, string> = {
+  Germany: "#ffffff",
+  Switzerland: "#000000",
+  Austria: "#1f2937",
+  Poland: "#111827",
+};
+
+const upcomingCountryBackgrounds: Record<string, string> = {
+  "United States":
+    "radial-gradient(circle, rgba(255,255,255,0.95) 0 1.2px, transparent 1.3px) 8px 7px / 16px 16px repeat, radial-gradient(circle, rgba(255,255,255,0.95) 0 1.2px, transparent 1.3px) 16px 15px / 16px 16px repeat, linear-gradient(90deg, #3c3b6e 0 40%, transparent 40%), repeating-linear-gradient(180deg, #b22234 0 7.69%, #ffffff 7.69% 15.38%)",
+  "United Kingdom": "url('/united-kingdom-flag.svg') center / cover no-repeat",
+  Spain:
+    "linear-gradient(180deg, #aa151b 0 25%, #f1bf00 25% 75%, #aa151b 75% 100%)",
+  Italy:
+    "linear-gradient(90deg, #009246 0 33.33%, #ffffff 33.33% 66.66%, #ce2b37 66.66% 100%)",
+};
+
+const upcomingCountryTextColors: Record<string, string> = {
+  "United States": "#ffffff",
+  "United Kingdom": "#ffffff",
+  Spain: "#3b1f00",
+  Italy: "#113b2c",
+};
+
+const upcomingCountryOverlays: Record<string, string> = {
+  "United States": "bg-black/28",
+  "United Kingdom": "bg-black/18",
+  Spain: "bg-white/10",
+  Italy: "bg-white/12",
 };
 
 export default function EligibilityWizard() {
   const [form, setForm] = useState<FormState>(initialState);
   // activeStep is 1-indexed and tracks how far the user has progressed.
   const [activeStep, setActiveStep] = useState<number>(1);
+  const [confirmTargetStep, setConfirmTargetStep] = useState<number | null>(
+    null,
+  );
 
   const totalSteps = getTotalSteps(form.destination);
   const emailIsValid = isValidEmail(form.email);
@@ -124,10 +268,19 @@ export default function EligibilityWizard() {
     (form.destination === "europe" && activeStep >= 5) ||
     (form.destination === "global" && activeStep >= 4);
 
-  function confirmBeforeResult(): boolean {
-    return window.confirm(
-      "Please review your information before continuing. Once you proceed, you will not be able to go back and edit your answers.\n\nDo you want to continue?",
-    );
+  function openContinueConfirm(targetStep: number) {
+    setConfirmTargetStep(targetStep);
+  }
+
+  function closeContinueConfirm() {
+    setConfirmTargetStep(null);
+  }
+
+  function confirmAndContinue() {
+    if (confirmTargetStep !== null) {
+      setActiveStep(confirmTargetStep);
+    }
+    closeContinueConfirm();
   }
 
   function goBack() {
@@ -232,10 +385,10 @@ export default function EligibilityWizard() {
                     setActiveStep(3);
                   }}
                 >
-                  <div className="h-80">
+                  <div className="h-64">
                     <Image
                       className="h-full w-full object-cover"
-                      src="/europe.png"
+                      src="/Europe2.png"
                       alt="Europe"
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
@@ -243,10 +396,10 @@ export default function EligibilityWizard() {
                   </div>
                   <div className="absolute inset-0 bg-linear-to-t from-[#002147]/80 via-transparent to-transparent" />
                   <div className="absolute bottom-6 left-6 right-6 text-white">
+                    <h2 className="nst-display text-3xl font-bold">Europe</h2>
                     <p className="text-xs uppercase tracking-widest text-[#f4dfb2]">
                       Currently Servicing
                     </p>
-                    <h2 className="nst-display text-3xl font-bold">Europe</h2>
                     <p className="mt-1 text-sm text-[#f4dfb2]">
                       Germany, Switzerland, Austria, and Poland
                     </p>
@@ -270,29 +423,20 @@ export default function EligibilityWizard() {
                     setActiveStep(3);
                   }}
                 >
-                  <div className="relative overflow-hidden rounded-xl p-6">
-                    <div className="absolute inset-0 bg-linear-to-r from-[#001428] via-[#08253f] to-[#0f3559]" />
+                  <div className="relative h-64 overflow-hidden rounded-xl">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{
+                        backgroundImage: "url('/global_oppurtunities.png')",
+                      }}
+                    />
                     <div className="absolute inset-0 opacity-35">
                       <div className="absolute -left-8 top-0 h-32 w-32 rounded-full bg-[#c8a96b]/25 blur-3xl" />
                     </div>
-                    <div className="relative flex items-center justify-between gap-6 text-white">
-                      <div className="max-w-2xl">
-                        <h2 className="nst-display text-3xl font-bold">
-                          Global Opportunities
-                        </h2>
-                      </div>
-                      <div className="pointer-events-none relative flex h-24 w-24 flex-none items-center justify-center sm:h-28 sm:w-28">
-                        <div className="absolute inset-0 rounded-full border border-[#8fc9ff]/35 bg-[#8fc9ff]/10 backdrop-blur-sm" />
-                        <div className="absolute inset-3 rounded-full border border-[#c8a96b]/25" />
-                        <Image
-                          src="/globe.svg"
-                          alt=""
-                          aria-hidden="true"
-                          width={64}
-                          height={64}
-                          className="relative h-14 w-14 object-contain drop-shadow-[0_0_12px_rgba(143,201,255,0.45)] sm:h-16 sm:w-16"
-                        />
-                      </div>
+                    <div className="absolute bottom-6 left-6 right-34 text-white">
+                      <h2 className="nst-display text-3xl font-bold">
+                        Global Opportunities
+                      </h2>
                     </div>
                   </div>
                 </button>
@@ -308,9 +452,20 @@ export default function EligibilityWizard() {
                           key={country}
                           type="button"
                           disabled
-                          className="w-full rounded-xl border border-[rgba(200,169,107,0.22)] bg-[rgba(255,255,255,0.03)] p-4 text-left text-white transition hover:bg-[rgba(255,255,255,0.06)] disabled:cursor-not-allowed disabled:opacity-60"
+                          className="relative w-full overflow-hidden rounded-xl border border-[rgba(200,169,107,0.22)] p-4 text-left text-white transition disabled:cursor-not-allowed disabled:opacity-85"
+                          style={{
+                            background: upcomingCountryBackgrounds[country],
+                          }}
                         >
-                          <h3 className="nst-display text-xl font-semibold text-white">
+                          <div
+                            className={`absolute inset-0 ${upcomingCountryOverlays[country]}`}
+                          />
+                          <h3
+                            className="nst-display relative text-xl font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
+                            style={{
+                              color: upcomingCountryTextColors[country],
+                            }}
+                          >
                             {country}
                           </h3>
                         </button>
@@ -339,19 +494,36 @@ export default function EligibilityWizard() {
                     key={country}
                     type="button"
                     disabled={isLocked}
-                    className={`rounded-xl border p-5 text-center transition border-[rgba(200,169,107,0.22)] text-[#d7d8dd] ${
+                    className={`relative overflow-hidden rounded-xl border p-5 text-center transition duration-300 border-white/30 hover:border-white/45 ${
                       form.europeCountry === country
-                        ? "bg-[rgba(200,169,107,0.18)]"
-                        : "bg-[rgba(255,255,255,0.03)]"
+                        ? "scale-[1.02] border-[#f4dfb2] ring-2 ring-[#f4dfb2]/80 shadow-[0_0_0_1px_rgba(255,255,255,0.85),0_0_34px_rgba(200,169,107,0.48),0_14px_30px_rgba(0,0,0,0.36)]"
+                        : ""
                     }`}
+                    style={{ background: europeCountryBackgrounds[country] }}
                     onClick={() =>
-                      setForm((f) => ({ ...f, europeCountry: country }))
+                      setForm((f) => ({
+                        ...f,
+                        europeCountry: country,
+                        europeEligibility: emptyEuropeEligibility,
+                      }))
                     }
                   >
-                    <span className="mb-1 block text-3xl" aria-hidden="true">
-                      {europeCountryFlags[country]}
+                    {form.europeCountry === country && (
+                      <div className="absolute inset-0 bg-linear-to-br from-white/20 via-transparent to-[#c8a96b]/22" />
+                    )}
+                    <div
+                      className={`absolute inset-0 ${
+                        form.europeCountry === country
+                          ? "bg-black/6"
+                          : "bg-black/14"
+                      }`}
+                    />
+                    <span
+                      className="relative block text-base font-semibold md:text-lg"
+                      style={{ color: europeCountryTextColors[country] }}
+                    >
+                      {country}
                     </span>
-                    <span className="text-sm font-semibold">{country}</span>
                   </button>
                 ))}
               </div>
@@ -385,129 +557,141 @@ export default function EligibilityWizard() {
               isActive={activeStep === 4}
               isComplete={activeStep > 4}
             >
-              <h2 className="mb-4 nst-display text-2xl font-semibold text-white">
-                Quick Eligibility Questions
-              </h2>
-              <div className="grid gap-3 md:grid-cols-2">
-                <SelectField
-                  disabled={isLocked}
-                  label="Do you have an IT background? (Software, Data, Cloud, AI, Cybersecurity, etc.)"
-                  required
-                  value={form.europeEligibility.itBackground}
-                  options={["Yes", "No"]}
-                  onChange={(v) =>
-                    setForm((f) => ({
-                      ...f,
-                      europeEligibility: {
-                        ...f.europeEligibility,
-                        itBackground: v as YesNo,
-                      },
-                    }))
-                  }
-                />
-                <SelectField
-                  disabled={isLocked}
-                  label="Highest Qualification"
-                  required
-                  value={form.europeEligibility.qualification}
-                  options={[
-                    "Diploma with one year practical training",
-                    "Bachelor's",
-                    "Master's",
-                  ]}
-                  onChange={(v) =>
-                    setForm((f) => ({
-                      ...f,
-                      europeEligibility: {
-                        ...f.europeEligibility,
-                        qualification: v as Qualification,
-                      },
-                    }))
-                  }
-                />
-                <SelectField
-                  disabled={isLocked}
-                  label="Do you have certified German B2 or above?"
-                  required
-                  value={form.europeEligibility.germanB2}
-                  options={["Yes", "No"]}
-                  onChange={(v) =>
-                    setForm((f) => ({
-                      ...f,
-                      europeEligibility: {
-                        ...f.europeEligibility,
-                        germanB2: v as YesNo,
-                      },
-                    }))
-                  }
-                />
-                <SelectField
-                  disabled={isLocked}
-                  label="Current location"
-                  required
-                  value={form.europeEligibility.currentLocation}
-                  options={["Europe", "Outside Europe"]}
-                  onChange={(v) =>
-                    setForm((f) => ({
-                      ...f,
-                      europeEligibility: {
-                        ...f.europeEligibility,
-                        currentLocation: v as "Europe" | "Outside Europe" | "",
-                      },
-                    }))
-                  }
-                />
-                <SelectField
-                  disabled={isLocked}
-                  label="Are you willing to relocate to the selected country?"
-                  required
-                  value={form.europeEligibility.willingToRelocate}
-                  options={["Yes", "No"]}
-                  onChange={(v) =>
-                    setForm((f) => ({
-                      ...f,
-                      europeEligibility: {
-                        ...f.europeEligibility,
-                        willingToRelocate: v as YesNo,
-                      },
-                    }))
-                  }
-                />
-                <SelectField
-                  disabled={isLocked}
-                  label="Are you comfortable with program/service fees for processing?"
-                  required
-                  value={form.europeEligibility.comfortableWithFees}
-                  options={["Yes", "No"]}
-                  onChange={(v) =>
-                    setForm((f) => ({
-                      ...f,
-                      europeEligibility: {
-                        ...f.europeEligibility,
-                        comfortableWithFees: v as YesNo,
-                      },
-                    }))
-                  }
-                />
-              </div>
-              {activeStep === 4 && (
-                <div className="mt-6 flex gap-2">
-                  <button className={backButtonClasses} onClick={goBack}>
-                    Back
-                  </button>
-                  <button
-                    className={continueButtonClasses}
-                    disabled={!isEuropeFormComplete(form.europeEligibility)}
-                    onClick={() => {
-                      if (confirmBeforeResult()) {
-                        setActiveStep(5);
-                      }
-                    }}
-                  >
-                    Continue
-                  </button>
-                </div>
-              )}
+              {(() => {
+                const languageQuestion = getEuropeLanguageQuestion(
+                  form.europeCountry,
+                );
+
+                return (
+                  <>
+                    <h2 className="mb-4 nst-display text-2xl font-semibold text-white">
+                      Quick Questions
+                    </h2>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <SelectField
+                        disabled={isLocked}
+                        label="Do you have an IT background? (Software, Data, Cloud, AI, Cybersecurity, etc.)"
+                        required
+                        value={form.europeEligibility.itBackground}
+                        options={["Yes", "No"]}
+                        onChange={(v) =>
+                          setForm((f) => ({
+                            ...f,
+                            europeEligibility: {
+                              ...f.europeEligibility,
+                              itBackground: v as YesNo,
+                            },
+                          }))
+                        }
+                      />
+                      <SelectField
+                        disabled={isLocked}
+                        label="Highest Qualification"
+                        required
+                        value={form.europeEligibility.qualification}
+                        options={[
+                          "Diploma with one year practical training",
+                          "Bachelor’s",
+                          "Master's",
+                        ]}
+                        onChange={(v) =>
+                          setForm((f) => ({
+                            ...f,
+                            europeEligibility: {
+                              ...f.europeEligibility,
+                              qualification: v as Qualification,
+                            },
+                          }))
+                        }
+                      />
+                      <SelectField
+                        disabled={isLocked}
+                        label={languageQuestion.label}
+                        required
+                        value={form.europeEligibility.languageRequirement}
+                        options={languageQuestion.options}
+                        onChange={(v) =>
+                          setForm((f) => ({
+                            ...f,
+                            europeEligibility: {
+                              ...f.europeEligibility,
+                              languageRequirement:
+                                v as EuropeLanguageRequirement,
+                            },
+                          }))
+                        }
+                      />
+                      <SelectField
+                        disabled={isLocked}
+                        label="Current location"
+                        required
+                        value={form.europeEligibility.currentLocation}
+                        options={["Europe", "Outside Europe"]}
+                        onChange={(v) =>
+                          setForm((f) => ({
+                            ...f,
+                            europeEligibility: {
+                              ...f.europeEligibility,
+                              currentLocation: v as
+                                | "Europe"
+                                | "Outside Europe"
+                                | "",
+                            },
+                          }))
+                        }
+                      />
+                      <SelectField
+                        disabled={isLocked}
+                        label="Are you willing to relocate to the selected country?"
+                        required
+                        value={form.europeEligibility.willingToRelocate}
+                        options={["Yes", "No"]}
+                        onChange={(v) =>
+                          setForm((f) => ({
+                            ...f,
+                            europeEligibility: {
+                              ...f.europeEligibility,
+                              willingToRelocate: v as YesNo,
+                            },
+                          }))
+                        }
+                      />
+                      <SelectField
+                        disabled={isLocked}
+                        label="Are you comfortable with program/service fees for processing?"
+                        required
+                        value={form.europeEligibility.comfortableWithFees}
+                        options={["Yes", "No"]}
+                        onChange={(v) =>
+                          setForm((f) => ({
+                            ...f,
+                            europeEligibility: {
+                              ...f.europeEligibility,
+                              comfortableWithFees: v as YesNo,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+                    {activeStep === 4 && (
+                      <div className="mt-6 flex gap-2">
+                        <button className={backButtonClasses} onClick={goBack}>
+                          Back
+                        </button>
+                        <button
+                          className={continueButtonClasses}
+                          disabled={
+                            !isEuropeFormComplete(form.europeEligibility)
+                          }
+                          onClick={() => openContinueConfirm(5)}
+                        >
+                          Continue
+                        </button>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </StepShell>
           )}
 
@@ -518,7 +702,12 @@ export default function EligibilityWizard() {
               isActive={activeStep === 5}
               isComplete={false}
             >
-              <ResultPanel />
+              <ResultPanel
+                result={getEuropeEligibilityResult(
+                  form.europeEligibility,
+                  form.europeCountry,
+                )}
+              />
             </StepShell>
           )}
 
@@ -531,7 +720,7 @@ export default function EligibilityWizard() {
               isComplete={activeStep > 3}
             >
               <h2 className="mb-4 nst-display text-2xl font-semibold text-white">
-                Quick Eligibility Questions
+                Quick Questions
               </h2>
               <div className="grid gap-3 md:grid-cols-2">
                 <SelectField
@@ -556,7 +745,7 @@ export default function EligibilityWizard() {
                   value={form.globalEligibility.qualification}
                   options={[
                     "Diploma with one year practical training",
-                    "Bachelor's",
+                    "Bachelor’s",
                     "Master's",
                   ]}
                   onChange={(v) =>
@@ -655,11 +844,7 @@ export default function EligibilityWizard() {
                   <button
                     className={continueButtonClasses}
                     disabled={!isGlobalFormComplete(form.globalEligibility)}
-                    onClick={() => {
-                      if (confirmBeforeResult()) {
-                        setActiveStep(4);
-                      }
-                    }}
+                    onClick={() => openContinueConfirm(4)}
                   >
                     Continue
                   </button>
@@ -675,9 +860,17 @@ export default function EligibilityWizard() {
               isActive={activeStep === 4}
               isComplete={false}
             >
-              <ResultPanel />
+              <ResultPanel
+                result={getGlobalEligibilityResult(form.globalEligibility)}
+              />
             </StepShell>
           )}
+
+          <ContinueConfirmModal
+            isOpen={confirmTargetStep !== null}
+            onCancel={closeContinueConfirm}
+            onConfirm={confirmAndContinue}
+          />
         </div>
       </div>
     </div>
@@ -718,6 +911,73 @@ function StepShell({
         } ${isActive ? "ring-1 ring-[#c8a96b]/30" : ""}`}
       >
         {children}
+      </div>
+    </div>
+  );
+}
+
+function ContinueConfirmModal({
+  isOpen,
+  onCancel,
+  onConfirm,
+}: {
+  isOpen: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-[2px]"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Confirm eligibility submission"
+      onClick={onCancel}
+    >
+      <div
+        className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-[rgba(200,169,107,0.38)] bg-[linear-gradient(165deg,rgba(3,6,12,0.985),rgba(2,5,10,0.985))] p-6 text-[#e5e7ee] shadow-[0_24px_80px_-28px_rgba(0,0,0,0.8)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="pointer-events-none absolute -right-14 -top-14 h-44 w-44 rounded-full bg-[#2563eb]/14 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-16 h-52 w-52 rounded-full bg-[#0ea5e9]/10 blur-3xl" />
+
+        <div className="mb-4 inline-flex items-center rounded-full border border-[rgba(200,169,107,0.45)] bg-[rgba(200,169,107,0.14)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#f4dfb2]">
+          Confirmation Required
+        </div>
+
+        <p className="text-sm leading-7 text-[#e5e7ee] sm:text-base">
+          Please review your information carefully before continuing. Once you
+          proceed, you will not be able to modify your responses for this
+          eligibility assessment.
+        </p>
+
+        <p className="mt-4 text-sm leading-7 text-[#e5e7ee] sm:text-base">
+          If you would like to check your eligibility for another country or
+          opportunity, you will need to complete a new eligibility assessment
+          from the beginning.
+        </p>
+
+        <p className="mt-4 text-sm font-semibold leading-7 text-[#f4dfb2] sm:text-base">
+          Do you wish to continue?
+        </p>
+
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            className={backButtonClasses}
+            onClick={onCancel}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className={continueButtonClasses}
+            onClick={onConfirm}
+          >
+            Continue
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -764,39 +1024,70 @@ function SelectField({
   );
 }
 
-function ResultPanel() {
+function ResultPanel({ result }: { result: EligibilityResult }) {
+  const isEligible = result.eligible;
+
   return (
     <div className="relative overflow-hidden rounded-xl p-8 text-center">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="nst-burst-glow absolute left-1/2 top-6 h-24 w-24 -translate-x-1/2 rounded-full" />
-        {confettiPieces.map((piece, i) => (
-          <span
-            key={i}
-            className="nst-burst-piece absolute h-4 w-2 rounded-full"
-            style={{
-              left: piece.left,
-              backgroundColor: piece.color,
-              // @ts-expect-error custom CSS variable used by .nst-burst-piece animation
-              "--nst-burst-rotate": piece.rotate,
-              animationDelay: piece.delay,
-              animationDuration: piece.duration,
-            }}
-          />
-        ))}
+      {isEligible && (
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="nst-burst-glow absolute left-1/2 top-6 h-24 w-24 -translate-x-1/2 rounded-full" />
+          {confettiPieces.map((piece, i) => (
+            <span
+              key={i}
+              className="nst-burst-piece absolute h-4 w-2 rounded-full"
+              style={{
+                left: piece.left,
+                backgroundColor: piece.color,
+                // @ts-expect-error custom CSS variable used by .nst-burst-piece animation
+                "--nst-burst-rotate": piece.rotate,
+                animationDelay: piece.delay,
+                animationDuration: piece.duration,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      <div
+        className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full ${
+          isEligible
+            ? "bg-emerald-600 text-emerald-50"
+            : "bg-rose-600 text-rose-50"
+        }`}
+      >
+        <span className="text-3xl font-bold">{isEligible ? "✓" : "✕"}</span>
       </div>
-      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-600 text-emerald-50">
-        <span className="text-3xl font-bold">✓</span>
-      </div>
+
       <h2 className="mb-3 nst-display text-3xl font-bold text-[#eef1f5]">
-        You are initially eligible
+        {isEligible ? "You are eligible" : "You are not eligible"}
       </h2>
-      <p className="mx-auto mb-6 max-w-2xl text-[#e5e7ee]">
-        You meet the initial eligibility criteria. You may now proceed to submit
-        your detailed profile for evaluation.
-      </p>
-      <Link href="/profile-submission" className={continueButtonClasses}>
-        Continue
-      </Link>
+
+      {isEligible ? (
+        <>
+          <p className="mx-auto mb-6 max-w-2xl text-[#e5e7ee]">
+            You meet the initial eligibility criteria. You may now proceed to
+            submit your detailed profile for evaluation.
+          </p>
+          <Link href="/profile-submission" className={continueButtonClasses}>
+            Continue
+          </Link>
+        </>
+      ) : (
+        <div className="mx-auto max-w-2xl text-[#e5e7ee]">
+          <p className="mb-3 text-center">
+            You are currently not eligible for the following reasons:
+          </p>
+          <ul className="mx-auto w-fit list-disc space-y-2 pl-5 text-left marker:text-[#c8a96b]">
+            {(result.reasons.length > 0
+              ? result.reasons
+              : ["You are currently not eligible based on your answers."]
+            ).map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
@@ -868,7 +1159,7 @@ const confettiPieces = [
 ];
 
 function cardButtonClasses(isSelected: boolean): string {
-  return `relative overflow-hidden rounded-xl border text-left shadow-sm transition hover:shadow-[0_0_26px_rgba(200,169,107,0.18)] w-full ${
+  return `relative overflow-hidden rounded-xl border text-left shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-[0_0_26px_rgba(200,169,107,0.18)] w-full ${
     isSelected
       ? "border-[#c8a96b] bg-[rgba(200,169,107,0.08)]"
       : "border-[rgba(200,169,107,0.28)] bg-[rgba(255,255,255,0.04)]"

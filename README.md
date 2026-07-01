@@ -2,16 +2,37 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure environment variables
+
+Create your local env file from the committed template:
+
+```bash
+cp .env.example .env.local
+```
+
+Then fill these values in `.env.local`:
+
+- `NEXT_PUBLIC_APP_URL` (local: `http://localhost:3000`)
+- `EMAIL_VERIFICATION_SECRET` (generate with `openssl rand -base64 48`)
+- `SMTP_HOST` (`smtp.gmail.com` for Gmail)
+- `SMTP_PORT` (`587`)
+- `SMTP_SECURE` (`false` for 587)
+- `SMTP_USER` (your full Gmail address)
+- `SMTP_PASS` (Google App Password)
+- `MAIL_FROM` (example: `NextStep Talent <your-gmail@gmail.com>`)
+
+Note: Do not commit `.env.local`. It is ignored by git for security.
+
+### 3. Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

@@ -554,7 +554,7 @@ export default function Home() {
           >
             <div className="aspect-4/5 w-full" />
             <div className="absolute inset-x-[16%] inset-y-[28%] flex items-center justify-center text-center">
-              <p className="font-display text-[1rem] font-semibold leading-7 text-[#f5f4f0] sm:text-[1.14rem] sm:leading-8">
+              <p className="font-display text-[1rem] font-semibold leading-7 text-[#f5f4f0] sm:text-[1.54rem] sm:leading-8">
                 Due to our structured and selective process, only a limited
                 number of candidates are onboarded each cycle.
               </p>

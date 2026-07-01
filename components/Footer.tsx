@@ -1,7 +1,16 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  if (pathname?.startsWith("/profile-submission")) {
+    return null;
+  }
+
   return (
     <footer className="mt-auto w-full border-t border-[rgba(200,169,107,0.14)] bg-[#050505] py-12 pt-8 text-white">
       <div className="mx-auto max-w-310 px-6 md:px-8">
@@ -40,7 +49,7 @@ export default function Footer() {
         </div>
 
         <p className="mt-2 text-center text-xs uppercase tracking-[0.22em] text-[#85858e]">
-          © 2026 NextStep Talent.
+          © NG Global Advisory & Consulting, LLC.
           <br />
           All rights reserved.
           <br />

@@ -59,7 +59,7 @@ const countryCriteria = [
   {
     country: "Global Opportunities",
     flag: "globe",
-    location: "NA",
+    location: "N/A",
     language: "Certified level of English proficiency",
   },
 ];
@@ -175,14 +175,10 @@ export default function EvaluationProgramPage() {
       </section>
 
       <section className="relative mx-auto mt-14 max-w-7xl">
-        <article className="panel grid md:grid-cols-2 gap-6 items-center rounded-4xl p-7 sm:p-9">
-          <Image
-            src="/career1.png"
-            width={1200}
-            height={900}
-            className="rounded-3xl object-cover h-full w-full"
-            alt=""
-          />
+        <article className="panel grid items-stretch gap-6 rounded-4xl p-7 sm:p-9 md:grid-cols-2">
+          <div className="relative self-stretch overflow-hidden rounded-3xl min-h-80 md:min-h-0">
+            <Image src="/career3.png" alt="" fill className="object-cover" />
+          </div>
           <div>
             <h3 className="font-display text-3xl text-white sm:text-4xl">
               Who This Is For

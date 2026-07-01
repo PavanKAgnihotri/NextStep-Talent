@@ -153,6 +153,16 @@ function getEuropeEligibilityResult(
     }
   }
 
+  if (
+    country &&
+    country !== "Germany" &&
+    e.currentLocation === "Outside Europe"
+  ) {
+    reasons.push(
+      "For this selected country, you need to currently be inside Europe.",
+    );
+  }
+
   if (e.willingToRelocate === "No") {
     reasons.push("You need to be willing to relocate to the selected country.");
   }
@@ -230,29 +240,12 @@ const europeCountryTextColors: Record<Exclude<EuropeCountry, null>, string> = {
   Poland: "#111827",
 };
 
-const upcomingCountryBackgrounds: Record<string, string> = {
-  "United States":
-    "radial-gradient(circle, rgba(255,255,255,0.95) 0 1.2px, transparent 1.3px) 8px 7px / 16px 16px repeat, radial-gradient(circle, rgba(255,255,255,0.95) 0 1.2px, transparent 1.3px) 16px 15px / 16px 16px repeat, linear-gradient(90deg, #3c3b6e 0 40%, transparent 40%), repeating-linear-gradient(180deg, #b22234 0 7.69%, #ffffff 7.69% 15.38%)",
-  "United Kingdom": "url('/united-kingdom-flag.svg') center / cover no-repeat",
-  Spain:
-    "linear-gradient(180deg, #aa151b 0 25%, #f1bf00 25% 75%, #aa151b 75% 100%)",
-  Italy:
-    "linear-gradient(90deg, #009246 0 33.33%, #ffffff 33.33% 66.66%, #ce2b37 66.66% 100%)",
-};
-
-const upcomingCountryTextColors: Record<string, string> = {
-  "United States": "#ffffff",
-  "United Kingdom": "#ffffff",
-  Spain: "#3b1f00",
-  Italy: "#113b2c",
-};
-
-const upcomingCountryOverlays: Record<string, string> = {
-  "United States": "bg-black/28",
-  "United Kingdom": "bg-black/18",
-  Spain: "bg-white/10",
-  Italy: "bg-white/12",
-};
+const upcomingCountries = [
+  { name: "United States", code: "us" },
+  { name: "United Kingdom", code: "gb" },
+  { name: "Spain", code: "es" },
+  { name: "Italy", code: "it" },
+] as const;
 
 export default function EligibilityWizard() {
   const [form, setForm] = useState<FormState>(initialState);
@@ -296,6 +289,15 @@ export default function EligibilityWizard() {
       europeEligibility: emptyEuropeEligibility,
       globalEligibility: emptyGlobalEligibility,
     }));
+  }
+
+  function restartFromDestinationStep() {
+    setForm((f) => ({
+      ...initialState,
+      email: f.email,
+    }));
+    setActiveStep(2);
+    closeContinueConfirm();
   }
 
   return (
@@ -446,31 +448,34 @@ export default function EligibilityWizard() {
                     Upcoming
                   </h3>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    {["United States", "United Kingdom", "Spain", "Italy"].map(
-                      (country) => (
-                        <button
-                          key={country}
-                          type="button"
-                          disabled
-                          className="relative w-full overflow-hidden rounded-xl border border-[rgba(200,169,107,0.22)] p-4 text-left text-white transition disabled:cursor-not-allowed disabled:opacity-85"
-                          style={{
-                            background: upcomingCountryBackgrounds[country],
-                          }}
-                        >
-                          <div
-                            className={`absolute inset-0 ${upcomingCountryOverlays[country]}`}
-                          />
-                          <h3
-                            className="nst-display relative text-xl font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
-                            style={{
-                              color: upcomingCountryTextColors[country],
-                            }}
-                          >
-                            {country}
-                          </h3>
-                        </button>
-                      ),
-                    )}
+                    {upcomingCountries.map((country) => (
+                      <button
+                        key={country.name}
+                        type="button"
+                        disabled
+                        className="group grid w-full grid-cols-[4.25rem_minmax(0,1fr)] overflow-hidden rounded-xl border border-[rgba(200,169,107,0.22)] bg-[rgba(255,255,255,0.035)] text-left transition disabled:cursor-not-allowed disabled:opacity-85"
+                      >
+                        <div className="flex items-center justify-center border-r border-[rgba(200,169,107,0.18)] bg-[rgba(200,169,107,0.12)] p-3">
+                          <div className="relative h-11 w-11 overflow-hidden rounded-lg border border-white/12 bg-[#111827] shadow-[0_8px_18px_rgba(0,0,0,0.22)]">
+                            <Image
+                              src={`https://flagcdn.com/w80/${country.code}.png`}
+                              alt={`${country.name} flag`}
+                              fill
+                              sizes="44px"
+                              className="object-cover"
+                              unoptimized
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-center px-4 py-4">
+                          <div>
+                            <h3 className="nst-display mt-1 text-xl font-semibold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)] sm:text-[1.35rem]">
+                              {country.name}
+                            </h3>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -708,6 +713,15 @@ export default function EligibilityWizard() {
                   form.europeCountry,
                 )}
               />
+              <div className="mt-6 flex justify-center">
+                <button
+                  type="button"
+                  className={backButtonClasses}
+                  onClick={restartFromDestinationStep}
+                >
+                  Check with another country
+                </button>
+              </div>
             </StepShell>
           )}
 
@@ -863,6 +877,15 @@ export default function EligibilityWizard() {
               <ResultPanel
                 result={getGlobalEligibilityResult(form.globalEligibility)}
               />
+              <div className="mt-6 flex justify-center">
+                <button
+                  type="button"
+                  className={backButtonClasses}
+                  onClick={restartFromDestinationStep}
+                >
+                  Check with another Country
+                </button>
+              </div>
             </StepShell>
           )}
 
@@ -1060,7 +1083,7 @@ function ResultPanel({ result }: { result: EligibilityResult }) {
       </div>
 
       <h2 className="mb-3 nst-display text-3xl font-bold text-[#eef1f5]">
-        {isEligible ? "You are eligible" : "You are not eligible"}
+        {isEligible ? "You Are Eligible" : "You Are Not Eligible"}
       </h2>
 
       {isEligible ? (

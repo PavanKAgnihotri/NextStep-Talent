@@ -7,6 +7,14 @@ type VerificationEmailRequest = {
   email?: string;
 };
 
+type MailTransporter = ReturnType<typeof nodemailer.createTransport>;
+
+type TransportConfig = {
+  transporter: MailTransporter;
+  host: string;
+  user: string;
+};
+
 function isLikelyPlaceholder(value?: string | null): boolean {
   if (!value) return true;
   const normalized = value.trim().toLowerCase();
@@ -17,15 +25,19 @@ function isLikelyPlaceholder(value?: string | null): boolean {
   );
 }
 
-function getTransporter() {
-  const host = process.env.SMTP_HOST;
+function getTransporter(): TransportConfig | null {
+  const host = process.env.SMTP_HOST?.trim();
   const port = Number(process.env.SMTP_PORT || "587");
   const secure =
     String(process.env.SMTP_SECURE || "").toLowerCase() === "true"
       ? true
       : port === 465;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
+  const user = process.env.SMTP_USER?.trim();
+  const passRaw = process.env.SMTP_PASS?.trim();
+  const isGmailHost = Boolean(host && host.toLowerCase().includes("gmail"));
+  const pass = isGmailHost
+    ? (passRaw || "").replace(/\s+/g, "")
+    : (passRaw ?? "");
 
   if (
     !host ||
@@ -37,15 +49,32 @@ function getTransporter() {
     return null;
   }
 
-  return nodemailer.createTransport({
+  return {
     host,
-    port,
-    secure,
-    auth: {
-      user,
-      pass,
-    },
-  });
+    user,
+    transporter: nodemailer.createTransport({
+      host,
+      port,
+      secure,
+      auth: {
+        user,
+        pass,
+      },
+    }),
+  };
+}
+
+function extractEmailAddress(fromValue: string): string {
+  const match = fromValue.match(/<([^>]+)>/);
+  if (match?.[1]) return match[1].trim().toLowerCase();
+  return fromValue.trim().toLowerCase();
+}
+
+function extractDisplayName(fromValue: string): string | null {
+  const idx = fromValue.indexOf("<");
+  if (idx <= 0) return null;
+  const name = fromValue.slice(0, idx).trim();
+  return name || null;
 }
 
 export async function POST(request: Request) {
@@ -63,8 +92,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const transporter = getTransporter();
-    if (!transporter) {
+    const transportConfig = getTransporter();
+    if (!transportConfig) {
       return NextResponse.json(
         {
           message:
@@ -74,13 +103,33 @@ export async function POST(request: Request) {
       );
     }
 
-    const fromAddress = process.env.MAIL_FROM || process.env.SMTP_USER;
+    const fromAddress = (
+      process.env.MAIL_FROM ||
+      process.env.SMTP_USER ||
+      ""
+    ).trim();
     if (!fromAddress || isLikelyPlaceholder(fromAddress)) {
       return NextResponse.json(
         { message: "MAIL_FROM or SMTP_USER must be configured." },
         { status: 500 },
       );
     }
+
+    const isGmailHost = transportConfig.host.toLowerCase().includes("gmail");
+    const mailFromEmail = extractEmailAddress(fromAddress);
+    const smtpUserEmail = transportConfig.user.trim().toLowerCase();
+    const displayName = extractDisplayName(fromAddress);
+
+    // Gmail usually requires the envelope/header from address to match the authenticated user.
+    const effectiveFrom =
+      isGmailHost && mailFromEmail !== smtpUserEmail
+        ? displayName
+          ? `${displayName} <${transportConfig.user}>`
+          : transportConfig.user
+        : fromAddress;
+
+    const replyTo =
+      isGmailHost && mailFromEmail !== smtpUserEmail ? fromAddress : undefined;
 
     if (isLikelyPlaceholder(process.env.EMAIL_VERIFICATION_SECRET)) {
       return NextResponse.json(
@@ -100,8 +149,9 @@ export async function POST(request: Request) {
       `${requestUrl.protocol}//${requestUrl.host}`;
     const verificationLink = `${baseUrl}/verify-email?token=${encodeURIComponent(token)}`;
 
-    await transporter.sendMail({
-      from: fromAddress,
+    await transportConfig.transporter.sendMail({
+      from: effectiveFrom,
+      replyTo,
       to: email,
       subject: "NextStep Talent email verification",
       text: `Hello, verify your email by opening this link: ${verificationLink}`,

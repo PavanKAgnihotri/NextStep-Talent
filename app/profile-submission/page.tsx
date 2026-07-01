@@ -164,10 +164,6 @@ function newLanguage(): LanguageEntry {
   };
 }
 
-function generateVerificationCode(): string {
-  return String(Math.floor(100000 + Math.random() * 900000));
-}
-
 function parseDateString(value: string): Date | null {
   const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   if (!match) return null;
@@ -321,8 +317,6 @@ export default function ProfileSubmissionPage() {
     currentCountryOfResidence: "",
     currentVisaStatus: "",
   });
-  const [emailVerificationCode, setEmailVerificationCode] = useState("");
-  const [sentVerificationCode, setSentVerificationCode] = useState("");
   const [verificationEmailMessage, setVerificationEmailMessage] = useState("");
   const [showEmailVerificationBox, setShowEmailVerificationBox] =
     useState(false);
@@ -400,6 +394,20 @@ export default function ProfileSubmissionPage() {
     [currentStep],
   );
   const countryOptions = useMemo(() => getCountryOptions(), []);
+  const isEmailVerified = useMemo(() => {
+    if (typeof window === "undefined") return false;
+
+    const currentEmail = personalDetails.email.trim().toLowerCase();
+    if (!currentEmail) return false;
+
+    const verifiedEmail = String(
+      localStorage.getItem("profile_submission_verified_email") || "",
+    )
+      .trim()
+      .toLowerCase();
+
+    return Boolean(verifiedEmail && verifiedEmail === currentEmail);
+  }, [personalDetails.email]);
 
   function markPersonalRequiredStarted(
     key: PersonalRequiredKey,
@@ -471,9 +479,12 @@ export default function ProfileSubmissionPage() {
       return;
     }
 
-    const verificationCode = generateVerificationCode();
-    setSentVerificationCode(verificationCode);
-    setEmailVerificationCode("");
+    if (isEmailVerified) {
+      setShowEmailVerificationBox(true);
+      setVerificationEmailMessage("Email verified successfully.");
+      return;
+    }
+
     setShowEmailVerificationBox(true);
 
     setIsSendingVerificationEmail(true);
@@ -487,7 +498,6 @@ export default function ProfileSubmissionPage() {
         },
         body: JSON.stringify({
           email: personalDetails.email.trim(),
-          code: verificationCode,
         }),
       });
 
@@ -501,7 +511,7 @@ export default function ProfileSubmissionPage() {
 
       setVerificationEmailMessage(
         data?.message ||
-          `Verification email sent to ${personalDetails.email.trim()}. Enter the 6-digit code below to continue.`,
+          `Verification email sent to ${personalDetails.email.trim()}. Open the link in your inbox to verify your email.`,
       );
     } catch (error) {
       const message =
@@ -512,22 +522,6 @@ export default function ProfileSubmissionPage() {
     } finally {
       setIsSendingVerificationEmail(false);
     }
-  }
-
-  function handleConfirmVerificationCode() {
-    if (!sentVerificationCode) {
-      handleVerifyEmail();
-      return;
-    }
-
-    if (emailVerificationCode.trim() === sentVerificationCode) {
-      setVerificationEmailMessage("Email verified successfully.");
-      return;
-    }
-
-    setVerificationEmailMessage(
-      "The verification code is incorrect. Please check the code and try again.",
-    );
   }
 
   function removeTechnicalSkill(indexToRemove: number) {
@@ -543,6 +537,14 @@ export default function ProfileSubmissionPage() {
   }
 
   function nextStep() {
+    if (currentStep === 1 && !isEmailVerified) {
+      setShowEmailVerificationBox(true);
+      setVerificationEmailMessage(
+        "Please verify your email using the link sent to your inbox before continuing.",
+      );
+      return;
+    }
+
     if (
       currentStep === 1 &&
       !isPersonalStepComplete(personalDetails, requiresVisa)
@@ -858,11 +860,13 @@ export default function ProfileSubmissionPage() {
                       className="cursor-pointer rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition duration-200 bg-[#c8a96b] text-black border border-[#c8a96b] hover:-translate-y-0.5 hover:bg-[#d4b87e] hover:border-[#d4b87e] hover:shadow-[0_0_24px_rgba(200,169,107,0.3)] w-full whitespace-nowrap md:w-auto"
                       type="button"
                       onClick={handleVerifyEmail}
-                      disabled={isSendingVerificationEmail}
+                      disabled={isSendingVerificationEmail || isEmailVerified}
                     >
-                      {isSendingVerificationEmail
-                        ? "Sending..."
-                        : "Verify Email"}
+                      {isEmailVerified
+                        ? "Verified"
+                        : isSendingVerificationEmail
+                          ? "Sending..."
+                          : "Verify Email"}
                     </button>
                   </div>
                   <Field
@@ -965,45 +969,28 @@ export default function ProfileSubmissionPage() {
                     <div className="md:col-span-2 rounded-xl border border-[rgba(200,169,107,0.16)] bg-[rgba(255,255,255,0.04)] p-4">
                       <div className="rounded-lg border border-[rgba(200,169,107,0.18)] bg-[rgba(200,169,107,0.06)] px-4 py-3 text-sm text-[#e9eaef]">
                         <p className="font-semibold text-[#f4dfb2]">
-                          Verification email sent
+                          {isEmailVerified
+                            ? "Email verified"
+                            : "Verification email sent"}
                         </p>
                         <p className="mt-1 leading-6 text-[#d3d3d8]">
                           {verificationEmailMessage ||
-                            "Verification email sent. Enter the 6-digit code below to continue."}
+                            "Verification email sent. Open the link in your inbox to verify your email."}
                         </p>
                       </div>
 
-                      <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
-                        <Field
-                          label="Verification Code"
-                          placeholder="Enter 6-digit code"
-                          maxLength={6}
-                          inputMode="numeric"
-                          value={emailVerificationCode}
-                          onChange={(value) =>
-                            setEmailVerificationCode(
-                              value.replace(/\D/g, "").slice(0, 6),
-                            )
-                          }
-                        />
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            className="cursor-pointer rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition duration-200 bg-[#c8a96b] text-black border border-[#c8a96b] hover:-translate-y-0.5 hover:bg-[#d4b87e] hover:border-[#d4b87e] hover:shadow-[0_0_24px_rgba(200,169,107,0.3)]"
-                            type="button"
-                            onClick={handleConfirmVerificationCode}
-                          >
-                            Verify
-                          </button>
+                      {!isEmailVerified && (
+                        <div className="mt-4 flex flex-wrap gap-2">
                           <button
                             className="cursor-pointer rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition duration-200 bg-transparent text-[#c8a96b] border border-[rgba(200,169,107,0.26)] hover:-translate-y-0.5 hover:bg-[rgba(200,169,107,0.1)]"
                             type="button"
                             onClick={handleVerifyEmail}
                             disabled={isSendingVerificationEmail}
                           >
-                            Resend
+                            Resend Link
                           </button>
                         </div>
-                      </div>
+                      )}
                     </div>
                   )}
                 </div>

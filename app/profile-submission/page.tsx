@@ -305,17 +305,26 @@ export default function ProfileSubmissionPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [hasReachedReview, setHasReachedReview] = useState(false);
 
-  const [personalDetails, setPersonalDetails] = useState({
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    mobile: "",
-    email: "",
-    dateOfBirth: "",
-    countryOfBirth: "",
-    citizenship: "",
-    currentCountryOfResidence: "",
-    currentVisaStatus: "",
+  const [personalDetails, setPersonalDetails] = useState(() => {
+    const verifiedEmail =
+      typeof window === "undefined"
+        ? ""
+        : String(
+            localStorage.getItem("profile_submission_verified_email") || "",
+          ).trim();
+
+    return {
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      mobile: "",
+      email: verifiedEmail,
+      dateOfBirth: "",
+      countryOfBirth: "",
+      citizenship: "",
+      currentCountryOfResidence: "",
+      currentVisaStatus: "",
+    };
   });
   const [verificationEmailMessage, setVerificationEmailMessage] = useState("");
   const [showEmailVerificationBox, setShowEmailVerificationBox] =

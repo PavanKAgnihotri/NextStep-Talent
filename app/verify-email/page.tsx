@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 function VerifyEmailContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
 
@@ -43,12 +42,8 @@ function VerifyEmailContent() {
         localStorage.setItem("profile_submission_verified_email", data.email);
         setStatus("success");
         setMessage(
-          "Email verified successfully. Redirecting to profile form...",
+          "Email verified successfully. Click the button below to return to the profile form.",
         );
-
-        window.setTimeout(() => {
-          router.replace("/profile-submission");
-        }, 1200);
       } catch (error) {
         setStatus("error");
         setMessage(
@@ -58,7 +53,7 @@ function VerifyEmailContent() {
     }
 
     verifyToken();
-  }, [router, token]);
+  }, [token]);
 
   return (
     <div className="network-grid relative z-20 px-4 pb-10 pt-28 sm:px-6 lg:px-8 lg:pt-32">

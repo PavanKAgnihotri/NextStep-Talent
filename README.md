@@ -16,9 +16,10 @@ Create your local env file from the committed template:
 cp .env.example .env.local
 ```
 
-Then fill these values in `.env.local`:
+Then fill these values in `.env.local` (for local development), and set production values in Vercel:
 
-- `NEXT_PUBLIC_APP_URL` (local: `http://localhost:3000`)
+- `NEXT_PUBLIC_APP_URL` (local development URL, usually `http://localhost:3000`)
+- `APP_BASE_URL` (production public domain, for example `https://yourdomain.com`)
 - `EMAIL_VERIFICATION_SECRET` (generate with `openssl rand -base64 48`)
 - `SMTP_HOST` (`smtp.gmail.com` for Gmail)
 - `SMTP_PORT` (`587`)
@@ -26,6 +27,8 @@ Then fill these values in `.env.local`:
 - `SMTP_USER` (your full Gmail address)
 - `SMTP_PASS` (Google App Password)
 - `MAIL_FROM` (example: `NextStep Talent <your-gmail@gmail.com>`)
+
+For Vercel deployments, set `APP_BASE_URL` in the Production environment to avoid verification emails containing localhost links.
 
 Note: Do not commit `.env.local`. It is ignored by git for security.
 

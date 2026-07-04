@@ -553,8 +553,8 @@ export default function Home() {
             style={{ backgroundImage: "url('/important_notice.png')" }}
           >
             <div className="aspect-4/5 w-full" />
-            <div className="absolute inset-x-[16%] inset-y-[28%] flex items-center justify-center text-center">
-              <p className="font-display text-[1rem] font-semibold leading-7 text-[#f5f4f0] sm:text-[1.54rem] sm:leading-8">
+            <div className="absolute inset-x-[14%] top-[40%] flex items-center justify-center text-center">
+              <p className="font-display text-[1.2rem] font-semibold leading-8 text-[#f5f4f0] sm:text-[1.78rem] sm:leading-9">
                 Due to our structured and selective process, only a limited
                 number of candidates are onboarded each cycle.
               </p>

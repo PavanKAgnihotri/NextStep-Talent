@@ -77,6 +77,71 @@ function extractDisplayName(fromValue: string): string | null {
   return name || null;
 }
 
+function isLocalhostHost(host: string): boolean {
+  const normalized = host.toLowerCase();
+  return normalized === "localhost" || normalized === "127.0.0.1";
+}
+
+function toOrigin(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const withProtocol = /^https?:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+
+  try {
+    const parsed = new URL(withProtocol);
+    return `${parsed.protocol}//${parsed.host}`;
+  } catch {
+    return null;
+  }
+}
+
+function resolveBaseUrl(request: Request): string {
+  const requestUrl = new URL(request.url);
+  const forwardedProto =
+    request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
+    requestUrl.protocol.replace(":", "");
+  const forwardedHost =
+    request.headers.get("x-forwarded-host")?.split(",")[0]?.trim() ||
+    request.headers.get("host") ||
+    requestUrl.host;
+
+  const headerOrigin =
+    forwardedProto && forwardedHost
+      ? `${forwardedProto}://${forwardedHost}`
+      : `${requestUrl.protocol}//${requestUrl.host}`;
+
+  const candidates = [
+    process.env.APP_BASE_URL,
+    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    process.env.VERCEL_URL,
+    headerOrigin,
+    `${requestUrl.protocol}//${requestUrl.host}`,
+  ];
+
+  const isProduction = process.env.NODE_ENV === "production";
+
+  for (const candidate of candidates) {
+    const origin = candidate ? toOrigin(candidate) : null;
+    if (!origin) continue;
+
+    try {
+      const parsed = new URL(origin);
+      if (isProduction && isLocalhostHost(parsed.hostname)) {
+        continue;
+      }
+      return origin;
+    } catch {
+      continue;
+    }
+  }
+
+  return `${requestUrl.protocol}//${requestUrl.host}`;
+}
+
 export async function POST(request: Request) {
   try {
     const payload = (await request
@@ -142,12 +207,10 @@ export async function POST(request: Request) {
     }
 
     const token = createEmailVerificationToken(email);
-    const requestUrl = new URL(request.url);
-    const baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      process.env.APP_BASE_URL ||
-      `${requestUrl.protocol}//${requestUrl.host}`;
-    const verificationLink = `${baseUrl}/verify-email?token=${encodeURIComponent(token)}`;
+    const baseUrl = resolveBaseUrl(request);
+    const verificationUrl = new URL("/verify-email", baseUrl);
+    verificationUrl.searchParams.set("token", token);
+    const verificationLink = verificationUrl.toString();
 
     await transportConfig.transporter.sendMail({
       from: effectiveFrom,

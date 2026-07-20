@@ -1,10 +1,31 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function Home() {
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
+  const [showComingSoon, setShowComingSoon] = useState(false);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+
+  // Touch handlers for modal swipe-to-dismiss
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const diffX = touchStartX.current - touchEndX;
+    const diffY = touchStartY.current - touchEndY;
+
+    // If swipe is more horizontal than vertical and significant distance
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+      setShowComingSoon(false);
+    }
+  };
   const pathwaySteps = [
     {
       number: "01",
@@ -73,14 +94,30 @@ export default function Home() {
               Readiness.
             </p>
 
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:gap-4 sm:flex-row">
+              <button
+                onClick={() => setShowComingSoon(true)}
+                className="w-full min-h-11 rounded-full border border-(--accent) bg-[rgba(201,169,110,0.03)] px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[#f1efeb] transition-all duration-300 ease-out active:scale-95 sm:active:scale-100 hover:sm:-translate-y-1 hover:sm:scale-[1.02] hover:border-(--accent-strong) hover:bg-[linear-gradient(180deg,rgba(201,169,110,0.22),rgba(201,169,110,0.10))] hover:shadow-[0_14px_30px_rgba(201,169,110,0.32)] sm:w-auto sm:min-w-70"
+              >
+                NextStep Talent
+                <br />
+                Edge
+              </button>
               <a
-                className="w-full max-w-70 rounded-full border border-(--accent) bg-[rgba(201,169,110,0.03)] px-5 py-3 text-center text-xs font-semibold uppercase tracking-[0.24em] text-(--accent-strong) transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-(--accent-strong) hover:bg-[linear-gradient(180deg,rgba(201,169,110,0.22),rgba(201,169,110,0.10))] hover:shadow-[0_14px_30px_rgba(201,169,110,0.32)] sm:w-auto sm:min-w-70"
+                className="w-full min-h-11 rounded-full border border-(--accent) bg-[rgba(201,169,110,0.03)] px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[#f1efeb] transition-all duration-300 ease-out active:scale-95 sm:active:scale-100 hover:sm:-translate-y-1 hover:sm:scale-[1.02] hover:border-(--accent-strong) hover:bg-[linear-gradient(180deg,rgba(201,169,110,0.22),rgba(201,169,110,0.10))] hover:shadow-[0_14px_30px_rgba(201,169,110,0.32)] sm:w-auto sm:min-w-70"
                 href="/evaluation-program"
                 data-discover="true"
               >
-                Explore Current Opportunities
+                NextStep Talent Opportunities
               </a>
+              <button
+                onClick={() => setShowComingSoon(true)}
+                className="w-full min-h-11 rounded-full border border-(--accent) bg-[rgba(201,169,110,0.03)] px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[#f1efeb] transition-all duration-300 ease-out active:scale-95 sm:active:scale-100 hover:sm:-translate-y-1 hover:sm:scale-[1.02] hover:border-(--accent-strong) hover:bg-[linear-gradient(180deg,rgba(201,169,110,0.22),rgba(201,169,110,0.10))] hover:shadow-[0_14px_30px_rgba(201,169,110,0.32)] sm:w-auto sm:min-w-70"
+              >
+                NextStep Talent
+                <br />
+                Workforce
+              </button>
             </div>
           </div>
         </div>
@@ -346,6 +383,14 @@ export default function Home() {
                       style={{ transition: "240ms" }}
                     />
                     <path
+                      id="path-asia-europe"
+                      d="M650 320 C610 280 560 220 505 160"
+                      stroke="rgba(158,129,69,0.28)"
+                      strokeWidth="1.05"
+                      strokeLinecap="round"
+                      style={{ transition: "240ms" }}
+                    />
+                    <path
                       id="path-southamerica-europe"
                       d="M360 383 C386 349 418 307 449 258 C470 224 485 195 505 160"
                       stroke="rgba(158,129,69,0.28)"
@@ -365,27 +410,68 @@ export default function Home() {
 
                   {/* ANIMATED TRAVEL DOTS */}
                   <circle r="5" fill="#d4af37" opacity="0.8">
-                    <animateMotion dur="4s" repeatCount="indefinite">
+                    <animateMotion
+                      dur="8s"
+                      repeatCount="indefinite"
+                      keyPoints="0;1;0"
+                      keyTimes="0;0.5;1"
+                      calcMode="linear"
+                    >
                       <mpath href="#path-usa-europe" />
                     </animateMotion>
                   </circle>
                   <circle r="4" fill="#d4af37" opacity="0.7">
-                    <animateMotion dur="4s" repeatCount="indefinite">
+                    <animateMotion
+                      dur="8s"
+                      repeatCount="indefinite"
+                      keyPoints="0;1;0"
+                      keyTimes="0;0.5;1"
+                      calcMode="linear"
+                    >
                       <mpath href="#path-uk-europe" />
                     </animateMotion>
                   </circle>
                   <circle r="4.5" fill="#d4af37" opacity="0.75">
-                    <animateMotion dur="4s" repeatCount="indefinite">
+                    <animateMotion
+                      dur="8s"
+                      repeatCount="indefinite"
+                      keyPoints="0;1;0"
+                      keyTimes="0;0.5;1"
+                      calcMode="linear"
+                    >
                       <mpath href="#path-australia-europe" />
                     </animateMotion>
                   </circle>
+                  <circle r="4.3" fill="#d4af37" opacity="0.73">
+                    <animateMotion
+                      dur="8s"
+                      repeatCount="indefinite"
+                      keyPoints="0;1;0"
+                      keyTimes="0;0.5;1"
+                      calcMode="linear"
+                    >
+                      <mpath href="#path-asia-europe" />
+                    </animateMotion>
+                  </circle>
                   <circle r="4.2" fill="#d4af37" opacity="0.74">
-                    <animateMotion dur="4s" repeatCount="indefinite">
+                    <animateMotion
+                      dur="8s"
+                      repeatCount="indefinite"
+                      keyPoints="0;1;0"
+                      keyTimes="0;0.5;1"
+                      calcMode="linear"
+                    >
                       <mpath href="#path-southamerica-europe" />
                     </animateMotion>
                   </circle>
                   <circle r="4.2" fill="#d4af37" opacity="0.72">
-                    <animateMotion dur="4s" repeatCount="indefinite">
+                    <animateMotion
+                      dur="8s"
+                      repeatCount="indefinite"
+                      keyPoints="0;1;0"
+                      keyTimes="0;0.5;1"
+                      calcMode="linear"
+                    >
                       <mpath href="#path-africa-europe" />
                     </animateMotion>
                   </circle>
@@ -395,6 +481,11 @@ export default function Home() {
                     style={{ cursor: "pointer" }}
                     onMouseEnter={() => setHoveredRegion("europe")}
                     onMouseLeave={() => setHoveredRegion(null)}
+                    onClick={() =>
+                      setHoveredRegion(
+                        hoveredRegion === "europe" ? null : "europe",
+                      )
+                    }
                   >
                     <circle
                       cx="505"
@@ -445,6 +536,9 @@ export default function Home() {
                     style={{ cursor: "pointer" }}
                     onMouseEnter={() => setHoveredRegion("uk")}
                     onMouseLeave={() => setHoveredRegion(null)}
+                    onClick={() =>
+                      setHoveredRegion(hoveredRegion === "uk" ? null : "uk")
+                    }
                   >
                     <circle
                       cx="465"
@@ -495,6 +589,9 @@ export default function Home() {
                     style={{ cursor: "pointer" }}
                     onMouseEnter={() => setHoveredRegion("usa")}
                     onMouseLeave={() => setHoveredRegion(null)}
+                    onClick={() =>
+                      setHoveredRegion(hoveredRegion === "usa" ? null : "usa")
+                    }
                   >
                     <circle
                       cx="155"
@@ -539,6 +636,119 @@ export default function Home() {
                       UNITED STATES
                     </text>
                   </g>
+
+                  {/* AUSTRALIA */}
+                  <g
+                    style={{ cursor: "pointer" }}
+                    onMouseEnter={() => setHoveredRegion("australia")}
+                    onMouseLeave={() => setHoveredRegion(null)}
+                    onClick={() =>
+                      setHoveredRegion(
+                        hoveredRegion === "australia" ? null : "australia",
+                      )
+                    }
+                  >
+                    <circle
+                      cx="848"
+                      cy="470"
+                      r="27"
+                      fill={
+                        hoveredRegion === "australia"
+                          ? "rgba(212,175,55,0.32)"
+                          : "rgba(207,174,103,0.16)"
+                      }
+                      style={{ transition: "240ms" }}
+                    />
+                    <circle
+                      cx="848"
+                      cy="470"
+                      r="12"
+                      fill={
+                        hoveredRegion === "australia" ? "#e8c547" : "#d1aa5e"
+                      }
+                      stroke={
+                        hoveredRegion === "australia"
+                          ? "rgba(232,197,71,0.9)"
+                          : "rgba(214,178,105,0.72)"
+                      }
+                      strokeWidth={hoveredRegion === "australia" ? "2" : "1.3"}
+                      style={{ transition: "240ms" }}
+                    />
+                    <text
+                      x="848"
+                      y="520"
+                      textAnchor="middle"
+                      fill={
+                        hoveredRegion === "australia" ? "#f5d666" : "#d9bd82"
+                      }
+                      stroke="rgba(7,8,6,0.78)"
+                      strokeWidth="3"
+                      paintOrder="stroke"
+                      style={{
+                        fontSize:
+                          hoveredRegion === "australia" ? "17px" : "15px",
+                        fontWeight: "600",
+                        letterSpacing: "0.14em",
+                        transition: "240ms",
+                        pointerEvents: "none",
+                      }}
+                    >
+                      AUSTRALIA
+                    </text>
+                  </g>
+
+                  {/* ASIA */}
+                  <g
+                    style={{ cursor: "pointer" }}
+                    onMouseEnter={() => setHoveredRegion("asia")}
+                    onMouseLeave={() => setHoveredRegion(null)}
+                    onClick={() =>
+                      setHoveredRegion(hoveredRegion === "asia" ? null : "asia")
+                    }
+                  >
+                    <circle
+                      cx="650"
+                      cy="320"
+                      r="27"
+                      fill={
+                        hoveredRegion === "asia"
+                          ? "rgba(212,175,55,0.32)"
+                          : "rgba(207,174,103,0.16)"
+                      }
+                      style={{ transition: "240ms" }}
+                    />
+                    <circle
+                      cx="650"
+                      cy="320"
+                      r="12"
+                      fill={hoveredRegion === "asia" ? "#e8c547" : "#d1aa5e"}
+                      stroke={
+                        hoveredRegion === "asia"
+                          ? "rgba(232,197,71,0.9)"
+                          : "rgba(214,178,105,0.72)"
+                      }
+                      strokeWidth={hoveredRegion === "asia" ? "2" : "1.3"}
+                      style={{ transition: "240ms" }}
+                    />
+                    <text
+                      x="650"
+                      y="280"
+                      textAnchor="middle"
+                      fill={hoveredRegion === "asia" ? "#f5d666" : "#d9bd82"}
+                      stroke="rgba(7,8,6,0.78)"
+                      strokeWidth="3"
+                      paintOrder="stroke"
+                      style={{
+                        fontSize: hoveredRegion === "asia" ? "17px" : "15px",
+                        fontWeight: "600",
+                        letterSpacing: "0.16em",
+                        transition: "240ms",
+                        pointerEvents: "none",
+                      }}
+                    >
+                      ASIA
+                    </text>
+                  </g>
                 </svg>
               </div>
             </div>
@@ -546,43 +756,142 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="connect" className="px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-        <div className="panel mx-auto grid max-w-7xl gap-8 rounded-4xl px-6 py-8 sm:px-10 sm:py-12 lg:grid-cols-[0.3fr_0.7fr] lg:items-center">
-          <div
-            className="group relative mx-auto w-full max-w-90 cursor-pointer bg-contain bg-center bg-no-repeat transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_16px_36px_rgba(201,169,110,0.42)]"
-            style={{ backgroundImage: "url('/important_notice.png')" }}
-          >
-            <div className="aspect-4/5 w-full" />
-            <div className="absolute inset-x-[14%] top-[40%] flex items-center justify-center text-center">
-              <p className="font-display text-[1.2rem] font-semibold leading-8 text-[#f5f4f0] sm:text-[1.78rem] sm:leading-9">
-                Due to our structured and selective process, only a limited
-                number of candidates are onboarded each cycle.
-              </p>
-            </div>
+      <section id="solutions" className="px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center mb-12">
+            <div className="section-label">Our Offerings</div>
+            <h2 className="font-display mt-6 text-4xl leading-tight text-white sm:text-5xl">
+              Comprehensive Talent Solutions
+            </h2>
           </div>
 
-          <div className="text-center lg:text-left">
-            <div className="section-label lg:text-center">
-              Take The Next Step
-            </div>
-            <h2 className="font-display mt-6 text-4xl leading-tight text-white sm:text-5xl lg:text-center">
-              Looking to Explore International Career Pathways?
-            </h2>
-            <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-white/62 lg:mx-0 lg:text-center">
-              Check if you meet the criteria to begin your international career
-              journey with NextStep Talent.
-            </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-center">
-              <a
-                href="/eligibility-check"
-                className="w-full max-w-70 rounded-full border border-(--accent) bg-[rgba(201,169,110,0.03)] px-5 py-3 text-center text-xs font-semibold uppercase tracking-[0.24em] text-(--accent-strong) transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-(--accent-strong) hover:bg-[linear-gradient(180deg,rgba(201,169,110,0.22),rgba(201,169,110,0.10))] hover:shadow-[0_14px_30px_rgba(201,169,110,0.32)] sm:w-auto sm:min-w-70"
-              >
-                Check Eligibility
-              </a>
-            </div>
+          <div className="grid gap-8 md:grid-cols-3">
+            <button
+              onClick={() => setShowComingSoon(true)}
+              className="group panel overflow-hidden rounded-[2rem] p-8 sm:p-10 transition-all duration-300 hover:-translate-y-2 hover:border-[rgba(201,169,110,0.6)] hover:shadow-[0_20px_40px_rgba(201,169,110,0.25)] text-left cursor-pointer"
+            >
+              <div className="mb-6 inline-flex rounded-full border border-[rgba(201,169,110,0.5)] bg-[rgba(201,169,110,0.1)] px-4 py-2">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d9bd82]">
+                  Development
+                </span>
+              </div>
+              <h3 className="font-display text-2xl leading-tight text-white mb-4">
+                NextStep Talent
+                <br />
+                Edge
+              </h3>
+              <p className="text-base leading-7 text-white/68 group-hover:text-white/80 transition-colors">
+                Professional development and career readiness solutions.
+              </p>
+              <div className="mt-6 inline-flex items-center text-[#d9bd82] text-sm font-semibold tracking-[0.15em] uppercase group-hover:translate-x-1 transition-transform">
+                Explore →
+              </div>
+            </button>
+
+            <a
+              href="/evaluation-program"
+              className="group panel overflow-hidden rounded-[2rem] p-8 sm:p-10 transition-all duration-300 hover:-translate-y-2 hover:border-[rgba(201,169,110,0.6)] hover:shadow-[0_20px_40px_rgba(201,169,110,0.25)] text-left"
+            >
+              <div className="mb-6 inline-flex rounded-full border border-[rgba(201,169,110,0.5)] bg-[rgba(201,169,110,0.1)] px-4 py-2">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d9bd82]">
+                  Opportunities
+                </span>
+              </div>
+              <h3 className="font-display text-2xl leading-tight text-white mb-4">
+                NextStep Talent
+                <br />
+                Opportunities
+              </h3>
+              <p className="text-base leading-7 text-white/68 group-hover:text-white/80 transition-colors">
+                Global career opportunities and employer connections.
+              </p>
+              <div className="mt-6 inline-flex items-center text-[#d9bd82] text-sm font-semibold tracking-[0.15em] uppercase group-hover:translate-x-1 transition-transform">
+                Explore →
+              </div>
+            </a>
+
+            <button
+              onClick={() => setShowComingSoon(true)}
+              className="group panel overflow-hidden rounded-[2rem] p-8 sm:p-10 transition-all duration-300 hover:-translate-y-2 hover:border-[rgba(201,169,110,0.6)] hover:shadow-[0_20px_40px_rgba(201,169,110,0.25)] text-left cursor-pointer"
+            >
+              <div className="mb-6 inline-flex rounded-full border border-[rgba(201,169,110,0.5)] bg-[rgba(201,169,110,0.1)] px-4 py-2">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d9bd82]">
+                  Workforce
+                </span>
+              </div>
+              <h3 className="font-display text-2xl leading-tight text-white mb-4">
+                NextStep Talent
+                <br />
+                Workforce
+              </h3>
+              <p className="text-base leading-7 text-white/68 group-hover:text-white/80 transition-colors">
+                Contract talent and workforce solutions.
+              </p>
+              <div className="mt-6 inline-flex items-center text-[#d9bd82] text-sm font-semibold tracking-[0.15em] uppercase group-hover:translate-x-1 transition-transform">
+                Explore →
+              </div>
+            </button>
           </div>
         </div>
       </section>
+
+      {showComingSoon && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setShowComingSoon(false)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div
+            className="relative rounded-3xl border border-[rgba(201,169,110,0.4)] bg-[#0a0a0a] px-8 py-12 text-center shadow-[0_25px_50px_rgba(0,0,0,0.5)] max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+          >
+            <button
+              onClick={() => setShowComingSoon(false)}
+              className="absolute right-4 top-4 h-10 w-10 rounded-full flex items-center justify-center text-white/60 transition-all duration-200 hover:bg-white/10 hover:text-white active:scale-95"
+              aria-label="Close modal"
+            >
+              ✕
+            </button>
+            <div className="mb-4 inline-flex">
+              <div className="h-12 w-12 rounded-full border border-[rgba(201,169,110,0.5)] bg-[rgba(201,169,110,0.1)] flex items-center justify-center">
+                <svg
+                  className="h-6 w-6 text-[#c8a96b]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <h3
+              id="modal-title"
+              className="font-display text-3xl text-white mb-3"
+            >
+              Coming Soon
+            </h3>
+            <p className="text-[#d2d2d6] max-w-xs mx-auto mb-8">
+              NextStep Talent Edge is under development. Stay tuned for exciting
+              updates!
+            </p>
+            <button
+              onClick={() => setShowComingSoon(false)}
+              className="rounded-full border border-(--accent) bg-[rgba(201,169,110,0.1)] px-6 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-(--accent-strong) transition-all duration-300 ease-out active:scale-95 hover:sm:-translate-y-0.5 hover:sm:scale-105 hover:border-(--accent-strong) hover:bg-[rgba(201,169,110,0.2)] hover:shadow-[0_10px_25px_rgba(201,169,110,0.2)] min-h-11"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
